@@ -113,12 +113,37 @@ async function importObjectAPI(request,env){
     return json({ok:true});
   }catch(e){return json({error:'Import failed'},400)}
 }
+
+/* First-run password setup: only active while no password exists anywhere. */
+const SETUP_CODE_SHA256='610bf7b7739049d527f041f8fe7c2ca8d01eb6c6875c082ffd777a9e22deb031';
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+function setupPage(msg=''){return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set password | ALOYSIUS NG HOMES</title><style>body{margin:0;min-height:100dvh;display:flex;align-items:center;justify-content:center;background:#0A1128;color:#fff;font:18px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.card{margin:24px;max-width:460px;width:100%;padding:32px;border:1px solid #C5A05966;border-radius:20px;background:#1C2541}h1{font-size:24px;margin:0 0 6px}p{color:#e0cb9f;margin:0 0 18px}label{display:block;margin:12px 0 6px}input{width:100%;box-sizing:border-box;padding:13px;border-radius:10px;border:1px solid #66718a;font:inherit}button{margin-top:20px;width:100%;padding:14px;border:0;border-radius:10px;background:#C5A059;color:#0A1128;font-weight:700;font-size:18px}.err{color:#ff9b9b}</style></head><body><form class="card" method="post" action="/setup"><h1>Set your website password</h1><p>One-time setup. Use at least 10 characters.</p>${msg?`<p class="err">${msg}</p>`:''}<label>Setup code (from Claude)</label><input name="code" autocomplete="off" required><label>New password</label><input name="password" type="password" autocomplete="new-password" minlength="10" required><label>Type it again</label><input name="confirm" type="password" autocomplete="new-password" minlength="10" required><button>Save password</button></form></body></html>`}
+async function setupFlow(request,env,url,path){
+  if(!env.BUCKET)return html(loginPage('Website login is temporarily unavailable.'),503);
+  if(path!=='/setup')return redirect('/setup');
+  if(request.method!=='POST')return html(setupPage());
+  if(request.headers.get('origin')!==url.origin)return new Response('Request not allowed',{status:403,headers:headers()});
+  const f=await request.formData();const code=String(f.get('code')||'').trim().toUpperCase(),pw=String(f.get('password')||''),cf=String(f.get('confirm')||'');
+  if(hex(await crypto.subtle.digest('SHA-256',enc.encode(code)))!==SETUP_CODE_SHA256)return html(setupPage('That setup code is not right.'),400);
+  if(pw.length<10)return html(setupPage('Please use at least 10 characters.'),400);
+  if(pw!==cf)return html(setupPage('The two passwords do not match.'),400);
+  if(await env.BUCKET.head('system/auth.json'))return redirect('/login');
+  const salt=hex(crypto.getRandomValues(new Uint8Array(16))),session=hex(crypto.getRandomValues(new Uint8Array(32)));
+  const key=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);
+  const hash=hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:100000,hash:'SHA-256'},key,256));
+  await env.BUCKET.put('system/auth.json',JSON.stringify({salt,hash,session,createdAt:new Date().toISOString()}));
+  return redirect('/login');
+}
 export default{async fetch(request,env){
  const url=new URL(request.url),path=url.pathname;
  if(['/assets/font-size.js','/assets/account-ui.css','/assets/brand-header.css','/assets/propnex-logo.png','/assets/language.css','/assets/language.js','/assets/site-navigation.js'].includes(path))return asset(path,request.method,request);
  if(path==='/ui-font.ttf')return asset('/assets/ui-sans.ttf',request.method,request);
  if(path==='/signature.ttf')return asset('/assets/anh-flowing-signature.ttf',request.method,request);
- if(!env.ANH_PASSWORD_HASH||!env.ANH_PASSWORD_SALT||!env.ANH_SESSION_SECRET)return html(loginPage('Website login is temporarily unavailable.'),503);
+ if(!env.ANH_PASSWORD_HASH||!env.ANH_PASSWORD_SALT||!env.ANH_SESSION_SECRET){
+  let stored=null;try{const o=env.BUCKET&&await env.BUCKET.get('system/auth.json');if(o)stored=await o.json()}catch{}
+  if(stored&&stored.hash&&stored.salt&&stored.session){env=Object.assign(Object.create(env),{ANH_PASSWORD_HASH:stored.hash,ANH_PASSWORD_SALT:stored.salt,ANH_SESSION_SECRET:stored.session})}
+  else return setupFlow(request,env,url,path);
+ }
  if(request.method==='POST'&&(path==='/login'||path==='/logout')){
   if(request.headers.get('origin')!==url.origin)return new Response('Request not allowed',{status:403,headers:headers()});
   if(path==='/logout')return redirect('/login',{'Set-Cookie':'__Host-anh_session=; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=0'});
