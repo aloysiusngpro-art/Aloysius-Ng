@@ -91,6 +91,28 @@ async function preferencesAPI(request,env){
   await env.BUCKET.put(key,JSON.stringify({value}));return json({value});
  }catch{return json({error:'Unable to sync preferences'},503)}
 }
+
+/* TEMPORARY one-time data import from the ChatGPT Sites export. Remove after migration. */
+const IMPORT_PREFIXES=['account-reports/','account-profiles/','account-property-searches/','shared-preferences/','report-attachments/'];
+function importPage(){return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Import data | ALOYSIUS NG HOMES</title><style>body{margin:0;min-height:100dvh;display:flex;align-items:center;justify-content:center;background:#0A1128;color:#fff;font:18px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.card{margin:24px;max-width:560px;width:100%;padding:32px;border:1px solid #C5A05966;border-radius:20px;background:#1C2541}h1{font-size:24px;margin:0 0 8px}p{color:#e0cb9f}input{margin:16px 0;color:#fff}button{padding:12px 20px;border:0;border-radius:10px;background:#C5A059;color:#0A1128;font-weight:700;font-size:17px;cursor:pointer}button:disabled{opacity:.5}#log{margin-top:16px;white-space:pre-wrap;font-size:15px}</style></head><body><div class="card"><h1>One-time data import</h1><p>Choose the <b>anh-import-bundle.json</b> file Claude gave you, then press Import.</p><input type="file" id="f" accept=".json,application/json"><br><button id="go" disabled>Import</button><div id="log"></div></div><script>
+const f=document.getElementById('f'),go=document.getElementById('go'),log=document.getElementById('log');let bundle=null;
+f.onchange=async()=>{try{bundle=JSON.parse(await f.files[0].text());log.textContent='Ready: '+bundle.objects.length+' items ('+Math.round(bundle.totalSizeBytes/1024)+' KB).';go.disabled=false}catch(e){log.textContent='That file could not be read. Please choose anh-import-bundle.json.'}};
+go.onclick=async()=>{go.disabled=true;let ok=0,fail=[];for(const [i,o] of bundle.objects.entries()){log.textContent='Importing '+(i+1)+' of '+bundle.objects.length+'...';try{const r=await fetch('/api/import-object',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(o)});const j=await r.json();if(r.ok&&j.ok)ok++;else fail.push(o.key+': '+(j.error||r.status))}catch(e){fail.push(o.key+': network error')}}
+log.textContent=(fail.length?'Finished with problems.':'Done!')+' Imported '+ok+' of '+bundle.objects.length+' items.'+(fail.length?'\\n\\nFailed:\\n'+fail.join('\\n'):'\\n\\nYou can now open your Saved reports and Saved profiles.')};
+</script></body></html>`}
+async function importObjectAPI(request,env){
+  if(!env.BUCKET)return json({error:'Storage unavailable'},503);
+  try{
+    const o=await request.json();const key=String(o.key||'');
+    if(!IMPORT_PREFIXES.some(p=>key.startsWith(p))||key.includes('..')||key.length>512)return json({error:'Key not allowed'},400);
+    const bin=atob(String(o.dataBase64||''));const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    if(bytes.length!==o.size)return json({error:'Size mismatch'},400);
+    const digest=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
+    if(digest!==o.sha256)return json({error:'Checksum mismatch'},400);
+    await env.BUCKET.put(key,bytes,o.contentType?{httpMetadata:{contentType:String(o.contentType)}}:undefined);
+    return json({ok:true});
+  }catch(e){return json({error:'Import failed'},400)}
+}
 export default{async fetch(request,env){
  const url=new URL(request.url),path=url.pathname;
  if(['/assets/font-size.js','/assets/account-ui.css','/assets/brand-header.css','/assets/propnex-logo.png','/assets/language.css','/assets/language.js','/assets/site-navigation.js'].includes(path))return asset(path,request.method,request);
@@ -112,6 +134,8 @@ export default{async fetch(request,env){
  if(!signedIn)return path.startsWith('/api/')?json({error:'Please log in again'},401):redirect('/login');
  if(path==='/bind-account')return redirect('/');
  if(path==='/api/me')return json({id:'shared-website',email:null,shared:true});
+  if(path==='/import-data'&&request.method==='GET')return html(importPage());
+  if(path==='/api/import-object'&&request.method==='POST')return importObjectAPI(request,env);
  if(path==='/api/attachments'||path.startsWith('/api/attachments/'))return attachmentsAPI(request,env);
  if(path==='/api/project-lifestyle')return lifestyleAPI(request,env);
  if(path==='/api/reports'||path.startsWith('/api/reports/'))return reportsAPI(request,env,'shared-website');
