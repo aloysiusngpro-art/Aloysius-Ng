@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict'),fs=require('fs'),vm=require('vm');
+const base=require('node:path').resolve(__dirname,'..')+'/';const m=require(base+'web/assets/client-profile-model.js');
+const a={name:'Sample Applicant',age:39,residency:'Singapore Citizen',salary:12000,variableAnnual:24000,takehome:11500,cards:100,car:300,other:0,housing:0,cpfOA:150000,monthlyOA:1500,cpfUsed:200000,cpfInterest:20000,usableRefund:220000};
+const p={name:'Ready Home',type:'ready',borrowers:'joint',price:1500000,valuation:1500000,existingLoans:0,tenure:25,rate:3,thereafterRate:4,absd:0,legal:3000,renovation:50000,other:0,running:400,rent:0};
+const d={client:'Sample Household',goal:'Upgrade home',timeline:'3-6 months',createdAt:'2026-10-08T00:00:00Z',cash:500000,reserve:50000,living:3500,priorities:'More space, a practical commute and an achievable exit strategy.',notes:'Confirm the bank assessment and CPF release before the purchase deposit.',applicants:[a],sale:{enabled:false},plans:[p,{...p,name:'New Launch',type:'new',price:1800000,valuation:1800000},{...p,name:'Right-size Option',price:1200000,valuation:1200000}]};
+assert.equal(m.bsd(1500000),44600);assert.equal(m.bsd(3700000),161600);assert.equal(m.payment(120000,0,10),1000);
+const r=m.analyse(d);assert.equal(r.plans[0].income,13400);assert.equal(r.plans[0].ltv,.75);assert.equal(r.plans[0].loan,1125000);assert.equal(r.plans[0].cashNeeded,322600);assert.equal(r.plans[0].status,'Within entered assumptions');assert.equal(r.preferred.name,'Right-size Option');
+assert.equal(m.analyse({...d,applicants:[{...a,age:50}]}).plans[0].ltv,.55);
+assert.equal(m.analyse({...d,plans:[{...p,existingLoans:1}]}).plans[0].ltv,.45);
+assert.equal(m.analyse({...d,applicants:[{...a,takehome:null}]}).plans[0].status,'Cashflow check pending');
+assert.equal(m.analyse({...d,cash:0}).plans[0].status,'Funding gap');
+assert.equal(m.analyse({...d,applicants:[{...a,salary:0,variableAnnual:0,takehome:0}],cash:3000000,living:0}).plans[0].loan,0);
+const sold=m.analyse({...d,sale:{enabled:true,name:'Existing Home',price:1000000,loan:300000,agencyRate:2.18,legal:3000,levies:0,other:0}});assert.equal(sold.saleCash,455200);assert.equal(sold.totalCPF,370000);
+const lowVal=m.analyse({...d,plans:[{...p,valuation:1400000}]});assert.equal(lowVal.plans[0].loan,1050000);assert.ok(lowVal.plans[0].cashNeeded>=170000);
+const stress=m.analyse({...d,plans:[{...p,thereafterRate:6}]});assert.equal(stress.plans[0].stressRate,6);assert.ok(stress.plans[0].loan<r.plans[0].loan);
+const hdb=m.analyse({...d,plans:[{...p,type:'hdb'}]});assert.ok(hdb.plans[0].msrRatio<=.3+1e-10);
+console.log('Client profile calculation checks passed.');

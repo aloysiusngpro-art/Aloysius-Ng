@@ -1,0 +1,11 @@
+.font-toolbar{box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:12px;width:100%;padding:12px 24px;background:#0a1128;color:#fff;border-bottom:1px solid #c5a05955;font:600 16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.font-toolbar label{margin:0;font:inherit;text-align:left}.font-toolbar input{width:140px;max-width:40vw;margin:0;padding:0;accent-color:#c5a059;cursor:pointer}.font-toolbar .font-large-a{font-size:23px}.font-toolbar output{font:inherit;min-width:36px}.account-bar{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:14px;padding:10px 24px;background:#f3f5f8;color:#465166;font-size:15px}.account-bar a{color:#1c2541}.account-bar .btn{font-size:15px;padding:8px 12px}.assessment-status.is-complete{background:transparent!important;border:0!important;box-shadow:none!important}
+@media(max-width:600px){.font-toolbar,.account-bar{padding:10px 16px}.account-bar{justify-content:flex-start}.font-toolbar{justify-content:center}}
+@media print{.font-toolbar,.account-bar{display:none!important}}
+
+.anh-network-activity{position:fixed;top:0;left:0;right:0;height:3px;background:#C5A059;opacity:0;pointer-events:none;z-index:10000;overflow:hidden;color:transparent;font-size:0;transition:opacity .12s}
+.anh-network-activity.is-active{opacity:1}
+.anh-network-activity:after{content:'';display:block;width:30%;height:100%;background:#1C2541;animation:anh-loading 1s linear infinite}
+@keyframes anh-loading{from{transform:translateX(-100%)}to{transform:translateX(440%)}}
+@media(prefers-reduced-motion:reduce){.anh-network-activity:after{animation:none;width:100%;background:#C5A059}}
+@media print{.anh-network-activity{display:none!important}}
+.assessment-status.is-incomplete{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important}

@@ -1,0 +1,40 @@
+/* One consistent, high-contrast partner identity on every website page. */
+.brand-site-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px;background:#0A1128!important}
+.brand-site-header .brand{min-width:0;max-width:100%}
+.brand-site-header .header-links{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-left:auto}
+.partner-wordmark,body>header>div>a:has(.partner-wordmark){width:340px!important;max-width:100%!important;flex-shrink:0}
+.partner-wordmark{position:relative!important;display:block!important;line-height:0!important;padding:0!important;background:transparent!important}
+.partner-wordmark img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;padding:0!important;border:0!important;border-radius:0!important;margin:0!important;background:transparent!important;filter:none!important}
+.partner-wordmark .partner-white-lettering,.header .brand .partner-wordmark .partner-white-lettering{position:absolute!important;inset:0!important;filter:brightness(0) invert(1)!important;clip-path:inset(0 0 0 29%)!important;pointer-events:none}
+.partner-wordmark .partner-agent{display:block!important;color:#fff!important;font-family:ANHUI,AuditUI,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif!important;font-size:20px!important;font-weight:700!important;font-style:normal!important;line-height:1.4!important;letter-spacing:.12em!important;text-transform:uppercase!important;-webkit-text-stroke:0!important;padding:10px 0 0!important;text-align:center!important;white-space:nowrap}
+.brand-site-header a:has(.partner-wordmark){display:block;max-width:100%;text-decoration:none}
+.login-partner{margin:0 auto 26px;width:340px;max-width:100%}
+@media(max-width:700px){.partner-wordmark,body>header>div>a:has(.partner-wordmark){width:300px!important}.brand-site-header{gap:18px}.partner-wordmark .partner-agent{font-size:18px!important}.brand-site-header .header-links{margin-left:0}}
+@media(max-width:360px){.partner-wordmark,body>header>div>a:has(.partner-wordmark){width:270px!important}.partner-wordmark .partner-agent{font-size:17px!important;letter-spacing:.10em!important}}
+@media print{.brand-site-header{display:none!important}}
+.brand-site-header{padding:24px max(22px,calc((100vw - 1160px)/2))!important;gap:24px!important}.header-preferences{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-left:auto}.header-preferences .font-toolbar{width:auto!important;background:#1C2541!important;color:#fff!important;padding:10px 16px!important;border:1px solid #c5a05955!important;border-radius:12px;flex-wrap:wrap;position:static!important}.header-preferences .global-language-toolbar{width:auto!important;background:#1C2541!important;padding:10px 16px!important;border:1px solid #c5a05955!important;border-radius:12px}.header-preferences input[type=range]{accent-color:#C5A059;max-width:140px}.unified-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:14px max(22px,calc((100vw - 1160px)/2));background:#1C2541;border-top:1px solid #c5a05933;width:100%;box-sizing:border-box}.unified-tabs a{color:#e5e8ef!important;font:600 17px/1.5 ANHUI,AuditUI,sans-serif;padding:10px 18px;text-decoration:none;border-radius:9px}.unified-tabs a[aria-current=page]{background:#C5A059;color:#0A1128!important}.unified-tabs a:hover{background:#c5a05933}.login-site-header{width:100%;box-sizing:border-box}.login-site-header .login-partner{margin:0}.login-site-header+nav{align-self:stretch}.header-preferences .global-zh{color:white}.brand-site-header form button{font-family:inherit;font-size:17px!important;cursor:pointer;background:#1C2541;color:white;border:1px solid #ffffff55;border-radius:10px;padding:12px 16px;width:auto;margin:0}@media(max-width:800px){.header-preferences{margin-left:0;flex:1 1 100%}.brand-site-header{padding:20px!important}.unified-tabs{padding:12px}.unified-tabs a{padding:10px 12px}}@media print{.unified-tabs{display:none!important}}
+
+/* Client Profile is the shared banner reference for every tab. */
+.brand-site-header{box-sizing:border-box!important;width:100%!important;max-width:none!important;margin:0!important;border:0!important;position:relative!important;color:#fff!important;font-family:ANHUI,-apple-system,BlinkMacSystemFont,sans-serif!important;line-height:1.6!important}
+.brand-site-header>a{display:block;text-decoration:none!important;flex:0 1 auto;min-width:0}
+.brand-site-header>form{margin:0!important;flex:0 0 auto}
+.brand-site-header form button{display:inline-block!important;line-height:1.5!important;font-weight:700!important;letter-spacing:normal!important;text-transform:none!important;box-sizing:border-box!important;text-decoration:none!important;min-height:0!important;box-shadow:none}
+.brand-site-header form button:hover{transform:translateY(-1px);box-shadow:0 5px 18px #0A112811}
+.unified-tabs{margin:0!important;max-width:none!important;justify-content:flex-start;align-items:center;font-family:ANHUI,-apple-system,BlinkMacSystemFont,sans-serif}
+.unified-tabs a{font-family:ANHUI,-apple-system,BlinkMacSystemFont,sans-serif!important;letter-spacing:normal!important;text-transform:none!important;border:0!important;box-shadow:none!important;white-space:nowrap}
+
+/* One shared, single-row banner at every width. */
+.brand-site-header{flex-wrap:nowrap!important;gap:clamp(10px,1.4vw,22px)!important;padding:20px clamp(12px,3vw,48px)!important;overflow-x:auto;scrollbar-width:thin}
+.brand-site-header>.brand,.brand-site-header>a,.brand-site-header>.login-partner{flex:0 0 auto!important}
+.brand-site-header .partner-wordmark{width:clamp(160px,22vw,300px)!important}
+.header-preferences{flex:0 0 auto!important;flex-wrap:nowrap!important;justify-content:flex-end;margin-left:auto!important;gap:12px;white-space:nowrap}
+.header-preferences .font-toolbar{flex-wrap:nowrap!important;gap:9px;padding:9px 12px!important}
+.header-preferences .font-toolbar input{width:100px;max-width:100px}
+.header-preferences .global-language-toolbar{flex:0 0 auto;padding:9px 12px!important}
+.header-preferences .header-sync-status{display:block;white-space:nowrap;background:transparent!important;border:0!important;box-shadow:none!important;color:#dce2ef!important;padding:0 4px;font-size:14px;line-height:1.5}
+.header-preferences>form{flex:none;margin:0!important}
+.header-preferences .header-logout{color:#fff!important;background:#1C2541;border:1px solid #c5a05955;border-radius:9px;padding:10px 12px;text-decoration:none;white-space:nowrap}
+.account-bar{background:transparent!important;border:0!important;box-shadow:none!important;color:inherit}
+@media(max-width:800px){.brand-site-header{padding:14px 12px!important}.header-preferences{flex:0 0 auto!important;margin-left:auto!important;gap:10px}.header-preferences .header-sync-status{font-size:12px}}
+
+@media(min-width:601px) and (max-width:1050px){.brand-site-header .partner-wordmark{width:175px!important}.header-preferences{gap:9px}.header-preferences .font-toolbar{padding:8px!important;gap:7px}.header-preferences .font-toolbar label{display:none}.header-preferences .font-toolbar input{width:75px;max-width:75px}.header-preferences .header-sync-status{font-size:12px}.header-preferences .global-language-toolbar{padding:8px!important}.brand-site-header form button{padding:9px 11px}}
