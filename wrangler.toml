@@ -1,0 +1,7 @@
+name = "aloysius-ng-homes"
+main = "dist/server/index.js"
+compatibility_date = "2026-11-13"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "aloysius-ng-homes-data"
