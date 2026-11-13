@@ -1,6 +1,7 @@
 name = "aloysius-ng-homes"
 main = "dist/server/index.js"
 compatibility_date = "2026-11-13"
+preview_urls = false
 
 [[r2_buckets]]
 binding = "BUCKET"
